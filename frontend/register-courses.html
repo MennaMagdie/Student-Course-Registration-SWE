@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Courses - University Registration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation bar -->
+  <div class="navbar">
+    <h1>Register Courses</h1>
+    <div class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="messageBox"></div>
+
+    <h2>Available Courses</h2>
+    <table id="coursesTable">
+      <thead>
+        <tr>
+          <th>Course Name</th>
+          <th>Instructor</th>
+          <th>Lecture Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Populated by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Load courses when page loads
+    window.addEventListener('load', async () => {
+      const studentId = localStorage.getItem('studentId');
+
+      if (!studentId) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Load available courses
+      await loadCourses(studentId);
+    });
+
+    // Function to load all available courses
+    async function loadCourses(studentId) {
+      try {
+        const response = await fetch('http://localhost:3000/courses');
+        const data = await response.json();
+
+        if (data.success) {
+          const tbody = document.querySelector('#coursesTable tbody');
+          tbody.innerHTML = '';
+
+          if (data.courses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No courses available</td></tr>';
+            return;
+          }
+
+          data.courses.forEach(course => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${course.course_name}</td>
+              <td>${course.instructor}</td>
+              <td>${course.lecture_time}</td>
+              <td class="actions">
+                <button class="register-btn" onclick="registerCourse(${studentId}, ${course.id})">Register</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage('Error loading courses', 'error');
+      }
+    }
+
+    // Function to register for a course
+    async function registerCourse(studentId, courseId) {
+      try {
+        const response = await fetch('http://localhost:3000/register-course', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ student_id: studentId, course_id: courseId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showMessage('Course registered successfully!', 'success');
+          // Reload courses
+          await loadCourses(studentId);
+        } else {
+          showMessage(data.message, 'error');
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage('Error registering course', 'error');
+      }
+    }
+
+    // Function to logout
+    async function logout() {
+      try {
+        await fetch('http://localhost:3000/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        localStorage.removeItem('studentId');
+        localStorage.removeItem('studentName');
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function showMessage(msg, type) {
+      const msgBox = document.getElementById('messageBox');
+      msgBox.innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+  </script>
+</body>
+</html>

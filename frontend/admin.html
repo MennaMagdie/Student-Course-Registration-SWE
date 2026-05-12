@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - University Registration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation bar -->
+  <div class="navbar">
+    <h1>Admin Panel</h1>
+    <div class="nav-links">
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="messageBox"></div>
+
+    <!-- Add Student Section -->
+    <div class="admin-section">
+      <h2>Add New Student</h2>
+      <form id="addStudentForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="studentName">Name:</label>
+            <input type="text" id="studentName" required>
+          </div>
+          <div class="form-group">
+            <label for="studentEmail">Email:</label>
+            <input type="email" id="studentEmail" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="studentPhone">Phone:</label>
+            <input type="text" id="studentPhone" required>
+          </div>
+          <div class="form-group">
+            <label for="studentAddress">Address:</label>
+            <input type="text" id="studentAddress" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="studentPassword">Password:</label>
+          <input type="password" id="studentPassword" required>
+        </div>
+        <button type="submit">Add Student</button>
+      </form>
+    </div>
+
+    <!-- Delete Student Section -->
+    <div class="admin-section">
+      <h2>Delete Student</h2>
+      <table id="studentTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Add Course Section -->
+    <div class="admin-section">
+      <h2>Add New Course</h2>
+      <form id="addCourseForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="courseName">Course Name:</label>
+            <input type="text" id="courseName" required>
+          </div>
+          <div class="form-group">
+            <label for="courseInstructor">Instructor:</label>
+            <input type="text" id="courseInstructor" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="lectureTime">Lecture Time:</label>
+          <input type="text" id="lectureTime" placeholder="e.g., Monday 10:00 AM" required>
+        </div>
+        <button type="submit">Add Course</button>
+      </form>
+    </div>
+
+    <!-- Delete Course Section -->
+    <div class="admin-section">
+      <h2>Delete Course</h2>
+      <table id="courseTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Course Name</th>
+            <th>Instructor</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Upload Grade Section -->
+    <div class="admin-section">
+      <h2>Upload Grade</h2>
+      <form id="uploadGradeForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="gradeStudentId">Student ID:</label>
+            <input type="number" id="gradeStudentId" required>
+          </div>
+          <div class="form-group">
+            <label for="gradeCourseId">Course ID:</label>
+            <input type="number" id="gradeCourseId" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="grade">Grade (A, B, C, etc):</label>
+            <input type="text" id="grade" placeholder="e.g., A, B, C" required>
+          </div>
+          <div class="form-group">
+            <label for="examScore">Exam Score:</label>
+            <input type="number" id="examScore" min="0" max="100" required>
+          </div>
+        </div>
+        <button type="submit">Upload Grade</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Load admin page data when page loads
+    window.addEventListener('load', async () => {
+      await loadStudents();
+      await loadCourses();
+    });
+
+    // Handle add student form submission
+    document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('studentName').value;
+      const email = document.getElementById('studentEmail').value;
+      const phone = document.getElementById('studentPhone').value;
+      const address = document.getElementById('studentAddress').value;
+      const password = document.getElementById('studentPassword').value;
+
+      try {
+        const response = await fetch('http://localhost:3000/add-student', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, phone, address, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showMessage('Student added successfully!', 'success');
+          document.getElementById('addStudentForm').reset();
+          await loadStudents();
+        } else {
+          showMessage(data.message, 'error');
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage('Error adding student', 'error');
+      }
+    });
+
+    // Handle add course form submission
+    document.getElementById('addCourseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const course_name = document.getElementById('courseName').value;
+      const instructor = document.getElementById('courseInstructor').value;
+      const lecture_time = document.getElementById('lectureTime').value;
+
+      try {
+        const response = await fetch('http://localhost:3000/add-course', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ course_name, instructor, lecture_time })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showMessage('Course added successfully!', 'success');
+          document.getElementById('addCourseForm').reset();
+          await loadCourses();
+        } else {
+          showMessage(data.message, 'error');
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage('Error adding course', 'error');
+      }
+    });
+
+    // Handle upload grade form submission
+    document.getElementById('uploadGradeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const student_id = document.getElementById('gradeStudentId').value;
+      const course_id = document.getElementById('gradeCourseId').value;
+      const grade = document.getElementById('grade').value;
+      const exam_score = document.getElementById('examScore').value;
+
+      try {
+        const response = await fetch('http://localhost:3000/upload-grade', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ student_id, course_id, grade, exam_score })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showMessage('Grade uploaded successfully!', 'success');
+          document.getElementById('uploadGradeForm').reset();
+        } else {
+          showMessage(data.message, 'error');
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage('Error uploading grade', 'error');
+      }
+    });
+
+    // Function to load all students
+    async function loadStudents() {
+      try {
+        const response = await fetch('http://localhost:3000/courses');
+        const data = await response.json();
+
+        // For demo, we'll just load a limited set
+        // In a real app, you'd have a dedicated endpoint for students
+        const tbody = document.querySelector('#studentTable tbody');
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Use database directly to view students</td></tr>';
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Function to load all courses
+    async function loadCourses() {
+      try {
+        const response = await fetch('http://localhost:3000/courses');
+        const data = await response.json();
+
+        if (data.success) {
+          const tbody = document.querySelector('#courseTable tbody');
+          tbody.innerHTML = '';
+
+          data.courses.forEach(course => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${course.id}</td>
+              <td>${course.course_name}</td>
+              <td>${course.instructor}</td>
+              <td class="actions">
+                <button class="delete-btn" onclick="deleteCourse(${course.id})">Delete</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Function to delete a course
+    async function deleteCourse(courseId) {
+      if (!confirm('Are you sure you want to delete this course?')) return;
+
+      try {
+        const response = await fetch(`http://localhost:3000/delete-course/${courseId}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showMessage('Course deleted successfully!', 'success');
+          await loadCourses();
+        } else {
+          showMessage(data.message, 'error');
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage('Error deleting course', 'error');
+      }
+    }
+
+    // Function to logout
+    async function logout() {
+      try {
+        await fetch('http://localhost:3000/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function showMessage(msg, type) {
+      const msgBox = document.getElementById('messageBox');
+      msgBox.innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+  </script>
+</body>
+</html>

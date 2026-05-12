@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>University Registration - Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="login-container container">
+    <h1>University Registration System</h1>
+
+    <div id="messageBox"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+
+      <button type="submit">Login</button>
+    </form>
+
+    <p style="margin-top: 20px; text-align: center; color: #666;">
+      Demo - Use email: ali@university.edu, password: password123
+    </p>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Handle login form submission
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('http://localhost:3000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showMessage('Login successful! Redirecting...', 'success');
+          localStorage.setItem('studentId', data.studentId);
+          localStorage.setItem('studentName', data.name);
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1000);
+        } else {
+          showMessage(data.message, 'error');
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage('Server error. Make sure backend is running.', 'error');
+      }
+    });
+
+    function showMessage(msg, type) {
+      const msgBox = document.getElementById('messageBox');
+      msgBox.innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+  </script>
+</body>
+</html>

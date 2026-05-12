@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - University Registration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation bar -->
+  <div class="navbar">
+    <h1>Student Dashboard</h1>
+    <div class="nav-links">
+      <a href="register-courses.html">Register Courses</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="messageBox"></div>
+
+    <!-- Student Information -->
+    <h2>Personal Information</h2>
+    <div class="info-box">
+      <p><strong>Name:</strong> <span id="studentName"></span></p>
+      <p><strong>Email:</strong> <span id="studentEmail"></span></p>
+      <p><strong>Phone:</strong> <span id="studentPhone"></span></p>
+      <p><strong>Address:</strong> <span id="studentAddress"></span></p>
+    </div>
+
+    <!-- Registered Courses -->
+    <h2>My Registered Courses</h2>
+    <table id="coursesTable">
+      <thead>
+        <tr>
+          <th>Course Name</th>
+          <th>Instructor</th>
+          <th>Lecture Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Populated by JavaScript -->
+      </tbody>
+    </table>
+
+    <!-- Grades -->
+    <h2>My Grades</h2>
+    <table id="gradesTable">
+      <thead>
+        <tr>
+          <th>Course Name</th>
+          <th>Grade</th>
+          <th>Exam Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Populated by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Load dashboard data when page loads
+    window.addEventListener('load', async () => {
+      const studentId = localStorage.getItem('studentId');
+      const studentName = localStorage.getItem('studentName');
+
+      if (!studentId) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Display student name
+      document.getElementById('studentName').textContent = studentName;
+
+      // Load student information
+      await loadStudentInfo(studentId);
+
+      // Load registered courses
+      await loadStudentCourses(studentId);
+
+      // Load grades
+      await loadGrades(studentId);
+    });
+
+    // Function to load student information
+    async function loadStudentInfo(studentId) {
+      try {
+        const response = await fetch(`http://localhost:3000/student-info/${studentId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const student = data.student;
+          document.getElementById('studentEmail').textContent = student.email;
+          document.getElementById('studentPhone').textContent = student.phone || 'N/A';
+          document.getElementById('studentAddress').textContent = student.address || 'N/A';
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Function to load student's registered courses
+    async function loadStudentCourses(studentId) {
+      try {
+        const response = await fetch(`http://localhost:3000/student-courses/${studentId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const tbody = document.querySelector('#coursesTable tbody');
+          tbody.innerHTML = '';
+
+          if (data.courses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No courses registered</td></tr>';
+            return;
+          }
+
+          data.courses.forEach(course => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${course.course_name}</td>
+              <td>${course.instructor}</td>
+              <td>${course.lecture_time}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Function to load student's grades
+    async function loadGrades(studentId) {
+      try {
+        const response = await fetch(`http://localhost:3000/grades/${studentId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const tbody = document.querySelector('#gradesTable tbody');
+          tbody.innerHTML = '';
+
+          if (data.grades.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No grades available yet</td></tr>';
+            return;
+          }
+
+          data.grades.forEach(grade => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${grade.course_name}</td>
+              <td>${grade.grade || 'N/A'}</td>
+              <td>${grade.exam_score || 'N/A'}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Function to logout
+    async function logout() {
+      try {
+        await fetch('http://localhost:3000/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        localStorage.removeItem('studentId');
+        localStorage.removeItem('studentName');
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
