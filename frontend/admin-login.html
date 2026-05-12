@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>University Registration - Login</title>
+  <title>Admin Login - University Registration</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="login-container container">
-    <h1>University Registration System</h1>
+    <h1>Admin Login</h1>
 
     <div id="messageBox"></div>
 
-    <form id="loginForm">
+    <form id="adminLoginForm">
       <div class="form-group">
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required>
@@ -23,33 +23,29 @@
         <input type="password" id="password" name="password" required>
       </div>
 
-      <button type="submit">Login</button>
+      <button type="submit">Admin Login</button>
     </form>
 
     <p style="margin-top: 20px; text-align: center; color: #666;">
-      Demo - Use email: ali@university.edu, password: password123
+      Demo - Use email: admin@university.edu, password: admin123
     </p>
 
     <p style="margin-top: 15px; text-align: center; color: #666;">
-      Don't have an account? <a href="signup.html" style="color: #007bff; text-decoration: none;">Sign up here</a>
-    </p>
-
-    <p style="margin-top: 15px; text-align: center; color: #666;">
-      Are you an admin? <a href="admin-login.html" style="color: #007bff; text-decoration: none;">Admin Login</a>
+      <a href="login.html" style="color: #007bff; text-decoration: none;">Back to Student Login</a>
     </p>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Handle login form submission
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    // Handle admin login form submission
+    document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
       try {
-        const response = await fetch('http://localhost:3000/login', {
+        const response = await fetch('http://localhost:3000/admin-login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -62,10 +58,11 @@
 
         if (data.success) {
           showMessage('Login successful! Redirecting...', 'success');
-          localStorage.setItem('studentId', data.studentId);
-          localStorage.setItem('studentName', data.name);
+          localStorage.setItem('adminId', data.adminId);
+          localStorage.setItem('adminName', data.name);
+          localStorage.setItem('isAdmin', 'true');
           setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = 'admin.html';
           }, 1000);
         } else {
           showMessage(data.message, 'error');

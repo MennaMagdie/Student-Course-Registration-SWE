@@ -82,7 +82,10 @@ http://localhost:3000
 
 ## Test Login Credentials
 
-Use these sample students to test:
+**Admin Account:**
+- Email: admin@university.edu
+- Password: admin123
+- Access: http://localhost:3000/admin-login.html
 
 **Student 1:**
 - Email: ali@university.edu
@@ -101,10 +104,15 @@ Use these sample students to test:
 4. **View Registered Courses** - See courses you're enrolled in on dashboard
 5. **View Grades** - See your grades on the dashboard
 6. **View Personal Information** - Displayed on dashboard
+7. **Sign Up** - Create new student account at signup.html
 
-### Admin Features (admin.html):
-Go to: `http://localhost:3000/admin.html`
+### Admin Features:
+Go to: `http://localhost:3000/admin-login.html`
+Login with: admin@university.edu / admin123
 
+Then access admin panel at: `http://localhost:3000/admin.html`
+
+Features:
 1. **Add Student** - Add new student to database
 2. **Delete Course** - Remove a course (see all courses in table)
 3. **Add Course** - Create new course
@@ -135,10 +143,15 @@ project/
 
 ## Backend API Routes
 
-### Authentication
-- `POST /login` - Login with email and password
-- `POST /logout` - Logout
+### Student Authentication
+- `POST /login` - Student login with email and password
+- `POST /logout` - Student logout
+- `POST /signup` - Register new student account
 - `GET /check-session` - Check if logged in
+
+### Admin Authentication
+- `POST /admin-login` - Admin login with email and password
+- `POST /admin-logout` - Admin logout
 
 ### Student Routes
 - `GET /courses` - Get all available courses
@@ -155,6 +168,13 @@ project/
 - `POST /upload-grade` - Upload/update grades
 
 ## Database Schema
+
+### Admins Table
+- id (auto-increment)
+- name
+- email (unique)
+- password
+- created_at
 
 ### Students Table
 - id (auto-increment)

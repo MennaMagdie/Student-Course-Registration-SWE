@@ -6,6 +6,7 @@ const path = require('path');
 
 // Import route files
 const authRoutes = require('./auth');
+const adminAuthRoutes = require('./admin-auth');
 const studentRoutes = require('./student');
 const adminRoutes = require('./admin');
 
@@ -30,6 +31,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Routes
 app.use('/', authRoutes);
+app.use('/', adminAuthRoutes);
 app.use('/', studentRoutes);
 app.use('/', adminRoutes);
 

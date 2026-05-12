@@ -11,6 +11,7 @@
   <div class="navbar">
     <h1>Admin Panel</h1>
     <div class="nav-links">
+      <span id="adminNameDisplay" style="color: white; margin-right: 20px;"></span>
       <a href="#" onclick="logout()">Logout</a>
     </div>
   </div>
@@ -141,6 +142,19 @@
   <script>
     // Load admin page data when page loads
     window.addEventListener('load', async () => {
+      // Check if admin is logged in
+      const adminId = localStorage.getItem('adminId');
+      const adminName = localStorage.getItem('adminName');
+      const isAdmin = localStorage.getItem('isAdmin');
+
+      if (!adminId || !isAdmin) {
+        window.location.href = 'admin-login.html';
+        return;
+      }
+
+      // Display admin name
+      document.getElementById('adminNameDisplay').textContent = 'Welcome, ' + adminName;
+
       await loadStudents();
       await loadCourses();
     });
@@ -312,12 +326,15 @@
     // Function to logout
     async function logout() {
       try {
-        await fetch('http://localhost:3000/logout', {
+        await fetch('http://localhost:3000/admin-logout', {
           method: 'POST',
           credentials: 'include'
         });
 
-        window.location.href = 'login.html';
+        localStorage.removeItem('adminId');
+        localStorage.removeItem('adminName');
+        localStorage.removeItem('isAdmin');
+        window.location.href = 'admin-login.html';
       } catch (error) {
         console.error(error);
       }
