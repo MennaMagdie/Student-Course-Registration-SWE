@@ -3,23 +3,20 @@ const express = require('express');
 const router = express.Router();
 const db = require('./db');
 
-// POST /login - Simple email and password login
+// POST /login - Login using student_id and password
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { student_id, password } = req.body;
 
-    // Get student from database
     const [rows] = await db.query(
-      'SELECT * FROM students WHERE email = ? AND password = ?',
-      [email, password]
+      'SELECT * FROM students WHERE student_id = ? AND password = ?',
+      [student_id, password]
     );
 
-    // Check if student exists
     if (rows.length === 0) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      return res.status(401).json({ success: false, message: 'Invalid Student ID or password' });
     }
 
-    // Store student info in session
     req.session.studentId = rows[0].id;
     req.session.studentName = rows[0].name;
     req.session.studentEmail = rows[0].email;
@@ -28,11 +25,33 @@ router.post('/login', async (req, res) => {
       success: true,
       message: 'Login successful',
       studentId: rows[0].id,
+      studentUid: rows[0].student_id,
       name: rows[0].name
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// POST /signup - Register new student account
+router.post('/signup', async (req, res) => {
+  try {
+    const { student_id, name, email, phone, address, password } = req.body;
+
+    await db.query(
+      'INSERT INTO students (student_id, name, email, phone, address, password) VALUES (?, ?, ?, ?, ?, ?)',
+      [student_id, name, email, phone, address, password]
+    );
+
+    res.json({ success: true, message: 'Account created successfully' });
+  } catch (error) {
+    console.error(error);
+    if (error.code === 'ER_DUP_ENTRY') {
+      res.status(400).json({ success: false, message: 'Student ID or email already exists' });
+    } else {
+      res.status(500).json({ success: false, message: 'Server error' });
+    }
   }
 });
 

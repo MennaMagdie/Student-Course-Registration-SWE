@@ -7,61 +7,99 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Navigation bar -->
-  <div class="navbar">
-    <h1>Student Dashboard</h1>
-    <div class="nav-links">
-      <a href="register-courses.html">Register Courses</a>
-      <a href="#" onclick="logout()">Logout</a>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="brand-icon brand-icon--sm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <span class="brand-name">UniPortal</span>
     </div>
-  </div>
+    <div class="nav-links">
+      <a href="register-courses.html" class="nav-link">Register Courses</a>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
 
-  <div class="container">
+  <div class="page-container">
     <div id="messageBox"></div>
 
-    <!-- Student Information -->
-    <h2>Personal Information</h2>
-    <div class="info-box">
-      <p><strong>Name:</strong> <span id="studentName"></span></p>
-      <p><strong>Email:</strong> <span id="studentEmail"></span></p>
-      <p><strong>Phone:</strong> <span id="studentPhone"></span></p>
-      <p><strong>Address:</strong> <span id="studentAddress"></span></p>
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Student Dashboard</h1>
+        <p class="page-subtitle">Welcome, <span id="welcomeName"></span></p>
+      </div>
     </div>
 
-    <!-- Registered Courses -->
-    <h2>My Registered Courses</h2>
-    <table id="coursesTable">
-      <thead>
-        <tr>
-          <th>Course Name</th>
-          <th>Instructor</th>
-          <th>Lecture Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Populated by JavaScript -->
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Personal Information</h2>
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Student ID</span>
+          <span class="info-value" id="studentUid"></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Full Name</span>
+          <span class="info-value" id="studentName"></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value" id="studentEmail"></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Phone</span>
+          <span class="info-value" id="studentPhone"></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Address</span>
+          <span class="info-value" id="studentAddress"></span>
+        </div>
+      </div>
+    </div>
 
-    <!-- Grades -->
-    <h2>My Grades</h2>
-    <table id="gradesTable">
-      <thead>
-        <tr>
-          <th>Course Name</th>
-          <th>Grade</th>
-          <th>Exam Score</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Populated by JavaScript -->
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">My Registered Courses</h2>
+        <a href="register-courses.html" class="btn-outline">+ Add Course</a>
+      </div>
+      <div class="table-wrapper">
+        <table id="coursesTable">
+          <thead>
+            <tr>
+              <th>Course Name</th>
+              <th>Instructor</th>
+              <th>Lecture Time</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">My Grades</h2>
+      </div>
+      <div class="table-wrapper">
+        <table id="gradesTable">
+          <thead>
+            <tr>
+              <th>Course Name</th>
+              <th>Grade</th>
+              <th>Exam Score</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Load dashboard data when page loads
     window.addEventListener('load', async () => {
       const studentId = localStorage.getItem('studentId');
       const studentName = localStorage.getItem('studentName');
@@ -71,37 +109,31 @@
         return;
       }
 
-      // Display student name
-      document.getElementById('studentName').textContent = studentName;
+      document.getElementById('welcomeName').textContent = studentName;
 
-      // Load student information
       await loadStudentInfo(studentId);
-
-      // Load registered courses
       await loadStudentCourses(studentId);
-
-      // Load grades
       await loadGrades(studentId);
     });
 
-    // Function to load student information
     async function loadStudentInfo(studentId) {
       try {
         const response = await fetch(`http://localhost:3000/student-info/${studentId}`);
         const data = await response.json();
 
         if (data.success) {
-          const student = data.student;
-          document.getElementById('studentEmail').textContent = student.email;
-          document.getElementById('studentPhone').textContent = student.phone || 'N/A';
-          document.getElementById('studentAddress').textContent = student.address || 'N/A';
+          const s = data.student;
+          document.getElementById('studentUid').textContent = s.student_id || 'N/A';
+          document.getElementById('studentName').textContent = s.name;
+          document.getElementById('studentEmail').textContent = s.email;
+          document.getElementById('studentPhone').textContent = s.phone || 'N/A';
+          document.getElementById('studentAddress').textContent = s.address || 'N/A';
         }
       } catch (error) {
         console.error(error);
       }
     }
 
-    // Function to load student's registered courses
     async function loadStudentCourses(studentId) {
       try {
         const response = await fetch(`http://localhost:3000/student-courses/${studentId}`);
@@ -112,7 +144,7 @@
           tbody.innerHTML = '';
 
           if (data.courses.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No courses registered</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="empty-row">No courses registered yet</td></tr>';
             return;
           }
 
@@ -131,7 +163,6 @@
       }
     }
 
-    // Function to load student's grades
     async function loadGrades(studentId) {
       try {
         const response = await fetch(`http://localhost:3000/grades/${studentId}`);
@@ -142,16 +173,17 @@
           tbody.innerHTML = '';
 
           if (data.grades.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No grades available yet</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="empty-row">No grades available yet</td></tr>';
             return;
           }
 
           data.grades.forEach(grade => {
+            const gradeClass = grade.grade === 'A' ? 'grade-a' : grade.grade === 'B' ? 'grade-b' : grade.grade === 'C' ? 'grade-c' : 'grade-other';
             const row = document.createElement('tr');
             row.innerHTML = `
               <td>${grade.course_name}</td>
-              <td>${grade.grade || 'N/A'}</td>
-              <td>${grade.exam_score || 'N/A'}</td>
+              <td><span class="grade-badge ${gradeClass}">${grade.grade || 'N/A'}</span></td>
+              <td>${grade.exam_score !== null ? grade.exam_score + '/100' : 'N/A'}</td>
             `;
             tbody.appendChild(row);
           });
@@ -161,14 +193,9 @@
       }
     }
 
-    // Function to logout
     async function logout() {
       try {
-        await fetch('http://localhost:3000/logout', {
-          method: 'POST',
-          credentials: 'include'
-        });
-
+        await fetch('http://localhost:3000/logout', { method: 'POST', credentials: 'include' });
         localStorage.removeItem('studentId');
         localStorage.removeItem('studentName');
         window.location.href = 'login.html';

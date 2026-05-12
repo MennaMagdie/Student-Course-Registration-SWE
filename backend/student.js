@@ -82,7 +82,7 @@ router.get('/student-info/:id', async (req, res) => {
     const studentId = req.params.id;
 
     const [student] = await db.query(
-      'SELECT id, name, email, phone, address FROM students WHERE id = ?',
+      'SELECT id, student_id, name, email, phone, address FROM students WHERE id = ?',
       [studentId]
     );
 

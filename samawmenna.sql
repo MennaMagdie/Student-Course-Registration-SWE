@@ -3,9 +3,9 @@ INSERT INTO admins (name, email, password) VALUES
 ('Dr Menna', 'menna@university.edu', '1');
 
 -- Insert sample students
-INSERT INTO students (name, email, phone, address, password) VALUES
-('Asmaa', 'asm@university.edu', '010398271', 'Alex, Egypt', '145'),
-('Nardine', 'nardine@university.edu', '011382813', 'Alex, Egypt', '145');
+INSERT INTO students (student_id, name, email, phone, address, password) VALUES
+('STU-003', 'Asmaa', 'asm@university.edu', '010398271', 'Alex, Egypt', '145'),
+('STU-004', 'Nardine', 'nardine@university.edu', '011382813', 'Alex, Egypt', '145');
 
 -- Insert sample courses
 INSERT INTO courses (course_name, instructor, lecture_time) VALUES

@@ -7,50 +7,60 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Navigation bar -->
-  <div class="navbar">
-    <h1>Register Courses</h1>
-    <div class="nav-links">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="#" onclick="logout()">Logout</a>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="brand-icon brand-icon--sm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <span class="brand-name">UniPortal</span>
     </div>
-  </div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
 
-  <div class="container">
+  <div class="page-container">
     <div id="messageBox"></div>
 
-    <h2>Available Courses</h2>
-    <table id="coursesTable">
-      <thead>
-        <tr>
-          <th>Course Name</th>
-          <th>Instructor</th>
-          <th>Lecture Time</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Populated by JavaScript -->
-      </tbody>
-    </table>
+    <div class="page-header">
+      <h1 class="page-title">Course Registration</h1>
+      <p class="page-subtitle">Browse and register for available courses</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Available Courses</h2>
+      </div>
+      <div class="table-wrapper">
+        <table id="coursesTable">
+          <thead>
+            <tr>
+              <th>Course Name</th>
+              <th>Instructor</th>
+              <th>Lecture Time</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Load courses when page loads
     window.addEventListener('load', async () => {
       const studentId = localStorage.getItem('studentId');
-
       if (!studentId) {
         window.location.href = 'login.html';
         return;
       }
-
-      // Load available courses
       await loadCourses(studentId);
     });
 
-    // Function to load all available courses
     async function loadCourses(studentId) {
       try {
         const response = await fetch('http://localhost:3000/courses');
@@ -61,7 +71,7 @@
           tbody.innerHTML = '';
 
           if (data.courses.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No courses available</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-row">No courses available</td></tr>';
             return;
           }
 
@@ -72,7 +82,7 @@
               <td>${course.instructor}</td>
               <td>${course.lecture_time}</td>
               <td class="actions">
-                <button class="register-btn" onclick="registerCourse(${studentId}, ${course.id})">Register</button>
+                <button class="btn-register" onclick="registerCourse(${studentId}, ${course.id})">Enroll</button>
               </td>
             `;
             tbody.appendChild(row);
@@ -84,22 +94,18 @@
       }
     }
 
-    // Function to register for a course
     async function registerCourse(studentId, courseId) {
       try {
         const response = await fetch('http://localhost:3000/register-course', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ student_id: studentId, course_id: courseId })
         });
 
         const data = await response.json();
 
         if (data.success) {
-          showMessage('Course registered successfully!', 'success');
-          // Reload courses
+          showMessage('Enrolled successfully!', 'success');
           await loadCourses(studentId);
         } else {
           showMessage(data.message, 'error');
@@ -110,25 +116,15 @@
       }
     }
 
-    // Function to logout
     async function logout() {
       try {
-        await fetch('http://localhost:3000/logout', {
-          method: 'POST',
-          credentials: 'include'
-        });
-
+        await fetch('http://localhost:3000/logout', { method: 'POST', credentials: 'include' });
         localStorage.removeItem('studentId');
         localStorage.removeItem('studentName');
         window.location.href = 'login.html';
       } catch (error) {
         console.error(error);
       }
-    }
-
-    function showMessage(msg, type) {
-      const msgBox = document.getElementById('messageBox');
-      msgBox.innerHTML = `<div class="message ${type}">${msg}</div>`;
     }
   </script>
 </body>

@@ -1,6 +1,7 @@
 -- Create students table
 CREATE TABLE IF NOT EXISTS students (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  student_id VARCHAR(20) UNIQUE NOT NULL,
   name VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
   phone VARCHAR(15),
@@ -54,9 +55,9 @@ INSERT INTO admins (name, email, password) VALUES
 ('New Admin', 'newadmin@university.edu', 'password123');
 
 -- Insert sample students
-INSERT INTO students (name, email, phone, address, password) VALUES
-('Ali Ahmed', 'ali@university.edu', '0501234567', 'Dubai, UAE', 'password123'),
-('Fatima Khan', 'fatima@university.edu', '0509876543', 'Abu Dhabi, UAE', 'password456');
+INSERT INTO students (student_id, name, email, phone, address, password) VALUES
+('STU-001', 'Ali Ahmed', 'ali@university.edu', '0501234567', 'Dubai, UAE', 'password123'),
+('STU-002', 'Fatima Khan', 'fatima@university.edu', '0509876543', 'Abu Dhabi, UAE', 'password456');
 
 -- Insert sample courses
 INSERT INTO courses (course_name, instructor, lecture_time) VALUES

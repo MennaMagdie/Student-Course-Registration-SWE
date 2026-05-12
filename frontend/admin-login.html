@@ -6,46 +6,54 @@
   <title>Admin Login - University Registration</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="login-container container">
-    <h1>Admin Login</h1>
-
-    <div id="messageBox"></div>
-
-    <form id="adminLoginForm">
-      <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
+<body class="auth-page">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="brand-icon brand-icon--admin">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="brand-name">Admin Panel</span>
       </div>
 
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+      <h1 class="auth-title">Administrator Login</h1>
+      <p class="auth-subtitle">Access the management dashboard</p>
+
+      <div id="messageBox"></div>
+
+      <form id="adminLoginForm" class="auth-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="admin@university.edu" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="btn-primary btn-block btn-admin">Sign In as Admin</button>
+      </form>
+
+      <div class="auth-footer">
+        <p><a href="login.html">Back to Student Login</a></p>
       </div>
-
-      <button type="submit">Admin Login</button>
-    </form>
-
-    <p style="margin-top: 15px; text-align: center; color: #666;">
-      <a href="login.html" style="color: #007bff; text-decoration: none;">Back to Student Login</a>
-    </p>
+    </div>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Handle admin login form submission
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
       try {
         const response = await fetch('http://localhost:3000/admin-login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({ email, password })
         });
@@ -57,9 +65,7 @@
           localStorage.setItem('adminId', data.adminId);
           localStorage.setItem('adminName', data.name);
           localStorage.setItem('isAdmin', 'true');
-          setTimeout(() => {
-            window.location.href = 'admin.html';
-          }, 1000);
+          setTimeout(() => { window.location.href = 'admin.html'; }, 900);
         } else {
           showMessage(data.message, 'error');
         }
@@ -68,11 +74,6 @@
         showMessage('Server error. Make sure backend is running.', 'error');
       }
     });
-
-    function showMessage(msg, type) {
-      const msgBox = document.getElementById('messageBox');
-      msgBox.innerHTML = `<div class="message ${type}">${msg}</div>`;
-    }
   </script>
 </body>
 </html>
