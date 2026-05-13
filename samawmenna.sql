@@ -1,5 +1,5 @@
 INSERT INTO admins (name, email, password) VALUES 
-('Dr Sama', 'sama@university.edu', '123');
+('Dr Sama', 'sama@university.edu', '123'),
 ('Dr Menna', 'menna@university.edu', '1');
 
 -- Insert sample students

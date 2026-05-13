@@ -19,14 +19,51 @@ router.post('/register-course', async (req, res) => {
   try {
     const { student_id, course_id } = req.body;
 
-    // Check if already registered
+    // Check if already registered in same course
     const [existing] = await db.query(
       'SELECT * FROM registrations WHERE student_id = ? AND course_id = ?',
       [student_id, course_id]
     );
 
     if (existing.length > 0) {
-      return res.status(400).json({ success: false, message: 'Already registered for this course' });
+      return res.status(400).json({
+        success: false,
+        message: 'Already registered for this course'
+      });
+    }
+
+    // Get lecture time of selected course
+    const [course] = await db.query(
+      'SELECT lecture_time FROM courses WHERE id = ?',
+      [course_id]
+    );
+
+    if (course.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    const lectureTime = course[0].lecture_time;
+
+    // Check for time conflict
+    const [conflict] = await db.query(
+      `
+      SELECT c.course_name, c.lecture_time
+      FROM registrations r
+      JOIN courses c ON r.course_id = c.id
+      WHERE r.student_id = ?
+      AND c.lecture_time = ?
+      `,
+      [student_id, lectureTime]
+    );
+
+    if (conflict.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Time conflict with course: ${conflict[0].course_name}`
+      });
     }
 
     // Register course
@@ -35,10 +72,17 @@ router.post('/register-course', async (req, res) => {
       [student_id, course_id]
     );
 
-    res.json({ success: true, message: 'Course registered successfully' });
+    res.json({
+      success: true,
+      message: 'Course registered successfully'
+    });
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 });
 
